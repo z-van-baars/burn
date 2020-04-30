@@ -1,0 +1,22 @@
+import pygame
+
+pygame.init()
+pygame.display.set_mode([0, 0])
+pygame.display.set_caption("Burn v0.1")
+
+
+key_color = (255, 0, 128)
+lander_sprite = pygame.image.load("lander.png").convert_alpha()
+lander_sprite.set_colorkey(key_color)
+flame_sprites = [
+    pygame.image.load("flame_1.png").convert_alpha(),
+    pygame.image.load("flame_2.png").convert_alpha(),
+    pygame.image.load("flame_3.png").convert_alpha()]
+for flame_sprite in flame_sprites:
+    flame_sprite.set_colorkey(key_color)
+smoke_sprites = []
+for i in range(6):
+    smoke_sprites.append(
+        pygame.image.load("smoke_{0}.png".format(i)).convert_alpha())
+for smoke_sprite in smoke_sprites:
+    smoke_sprite.set_colorkey(key_color)

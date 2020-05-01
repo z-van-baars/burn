@@ -7,6 +7,8 @@ def display_update(screen, clock, state):
     screen.fill((20, 20, 20))
 
     screen.blit(state.ground.image, [0, state.screen_height - state.ground.height])
+    for prop in state.props:
+        screen.blit(prop.image, [prop.x, prop.y])
     state.lander_shadow.redraw_image(state.screen_height, state.lander.x, state.lander.y)
     screen.blit(state.lander_shadow.image, [state.lander_shadow.x, state.lander_shadow.y])
     screen.blit(state.lander.image, [state.lander.x, state.lander.y])
@@ -53,7 +55,7 @@ def display_update(screen, clock, state):
         crashed_stamp = large_font.render(
             "You have crashed!", True, (245, 10, 10))
         m_width = crashed_stamp.get_width()
-        screen.blit(crashed_stamp, [int(screen.get_width() * 0.5 - m_width * 0.5), int(screen.get_height() * 0.3)])
+        screen.blit(crashed_stamp, [int(screen.get_width() * 0.5 - m_width * 0.5), int(screen.get_height() * 0.4)])
 
     pg.display.flip()
     clock.tick(60)

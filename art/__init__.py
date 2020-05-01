@@ -51,3 +51,12 @@ for i in range(6):
     smoke_sprite = smoke_sprite.convert_alpha()
     smoke_sprites.append(smoke_sprite)
 small_smoke_sprites = smoke_sprites[3:]
+
+explosion_spritesheet = pygame.image.load("art/effects/explosion.png")
+explosion_spritesheet.set_colorkey(key_color)
+explosion_spritesheet = explosion_spritesheet.convert_alpha()
+explosion = []
+for i in range(8):
+    explosion_frame = pygame.Surface([50, 60])
+    explosion_frame.blit(explosion_spritesheet, [0, 0], (50 * i, 0, 50, 60))
+    explosion.append(explosion_frame)

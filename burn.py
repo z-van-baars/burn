@@ -20,7 +20,7 @@ class GameState(object):
         self.lander = Lander(screen_dimensions[0])
         self.lander_shadow = LanderShadow(screen_dimensions[1])
 
-        self.static_objects = []
+        self.props = []
         self.physical_objects = []
         self.particles = []
 
@@ -30,7 +30,7 @@ class Lander(object):
         self.x = int(screen_width / 3)
         self.y = 30
         self.y_velocity = 0
-        self.x_velocity = 1
+        self.x_velocity = -1
         self.image = art.lander_sprite
         self.fuel = 1000
         self.thrusting = False
@@ -70,13 +70,13 @@ class LanderShadow(object):
 
 
 class Boulder(object):
-    def __init__(self):
-        self.width = 30
+    def __init__(self, x):
+        self.width = 20
         self.height = 30
-        self.x = 0
+        self.x = x
         self.y = random.randint(600 - 230, 600 - 30)
         self.image = pg.Surface([self.width, self.height])
-        self.image.fill((100, 100, 100))
+        self.image.fill((70, 70, 70))
 
 
 class Ground(object):
@@ -105,6 +105,9 @@ def keydown_handler(state, event):
             print("Out of fuel!!")
 
     elif event.key == pg.K_SPACE:
+        if state.lander.crashed or state.lander.landed:
+            reset_new_game(state)
+            return
         return True
 
 
@@ -133,7 +136,7 @@ def event_handler(state):
             mouseup_handler(state, event)
 
 
-def physics_update(screen_height, lander, gravity, active_particles):
+def physics_update(screen_height, lander, gravity, active_props, active_particles):
     thrust = 0
     if lander.thrusting == True:
         thrust = lander.thrust()
@@ -156,13 +159,20 @@ def physics_update(screen_height, lander, gravity, active_particles):
         particle.x_velocity *= 0.995
         particle.x_velocity = round(particle.x_velocity, 2)
 
-        particle.x += particle.x_velocity
+        particle.x += particle.x_velocity + lander.x_velocity
         particle.y += particle.y_velocity
+
+    for prop in active_props:
+        prop.x += lander.x_velocity
 
     state.lander_shadow.get_xposition(screen_height, lander.x, lander.y)
 
 
 def update(state, lander):
+    # Spawn Boulders
+    if random.randint(1, 100) > 99 :
+        new_boulder = Boulder(state.screen_width)
+        state.props.append(new_boulder)
 
     # Conditional Events Based On Lander Height
     adj_alt = state.screen_height - 130 - lander.y
@@ -229,8 +239,10 @@ def update(state, lander):
     state.particles = []
     state.particles = active_particles
 
-width, height = 800, 600
-state = GameState([width, height])
+def reset_new_game(state):
+    state.__init__((state.screen_width, state.screen_height))
+
+state = GameState((800, 600))
 
 while True:
     start = event_handler(state)
@@ -242,6 +254,6 @@ while True:
 while True:
     event_handler(state)
     update(state, state.lander)
-    physics_update(state.screen_height, state.lander, state.gravity, state.particles)
+    physics_update(state.screen_height, state.lander, state.gravity, state.props, state.particles)
     display_update(state.screen, state.clock, state)
     state.clock.tick(60)

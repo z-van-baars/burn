@@ -12,8 +12,11 @@ def display_update(screen, clock, state):
     state.lander_shadow.redraw_image(state.screen_height, state.lander.x, state.lander.y)
     screen.blit(state.lander_shadow.image, [state.lander_shadow.x, state.lander_shadow.y])
     screen.blit(state.lander.image, [state.lander.x, state.lander.y])
+    for active_effect in state.effects:
+        screen.blit(active_effect.active_frame, [active_effect.x, active_effect.y])
     for particle in state.particles:
         screen.blit(particle.image, [particle.x, particle.y])
+
     # Decals and UI
     altitude_stamp = large_font.render("Altitude: {0}".format(round(state.screen_height - 130 - state.lander.y), 3), True, (255, 255, 255))
     v_color = (255, 255, 255)

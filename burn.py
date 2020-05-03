@@ -2,6 +2,7 @@ import random
 import art
 import pygame as pg
 import particle as prt
+import effect as eft
 from display import display_update
 
 
@@ -23,6 +24,7 @@ class GameState(object):
         self.props = []
         self.physical_objects = []
         self.particles = []
+        self.effects = []
 
 
 class Lander(object):
@@ -41,6 +43,12 @@ class Lander(object):
     def thrust(self):
         self.fuel -= 1
         return -0.06
+
+    def clear_image(self):
+        self.image = pg.Surface([60, 50])
+        self.image.fill((255, 0, 128))
+        self.image.set_colorkey((255, 0, 128))
+        self.image = self.image.convert_alpha()
 
 
 class LanderShadow(object):
@@ -207,6 +215,9 @@ def update(state, lander):
                 state.particles.append(ld)
     if lander.explodes == True:
         lander.explodes = False
+        lander.clear_image()
+        new_expl = eft.Explosion(lander.x - 20, lander.y - 35)
+        state.effects.append(new_expl)
         for i in range(25):
             sp = prt.Spark(lander.x, lander.y - 40, lander.y_velocity, random.randrange(-10, 20))
             sp.y_velocity += random.randrange(-30, -20, 1) / 5
@@ -223,6 +234,14 @@ def update(state, lander):
             smkpl.x_velocity = -random.randrange(2, 10, 1) / 10
             smkpl.x += smkpl.x_velocity * 5
             state.particles.append(smkpl)
+
+    # Process effects
+    active_effects = []
+    for active_effect in state.effects:
+        active_effect.play()
+        if active_effect.active:
+            active_effects.append(active_effect)
+    state.effects = active_effects
 
     # Process particles and duration
     for particle in state.particles:

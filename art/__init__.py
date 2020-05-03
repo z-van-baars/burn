@@ -58,5 +58,9 @@ explosion_spritesheet = explosion_spritesheet.convert_alpha()
 explosion = []
 for i in range(8):
     explosion_frame = pygame.Surface([50, 60])
+    explosion_frame.fill((255, 0, 128))
     explosion_frame.blit(explosion_spritesheet, [0, 0], (50 * i, 0, 50, 60))
+    explosion_frame.set_colorkey(key_color)
+    explosion_frame = explosion_frame.convert_alpha()
+    explosion_frame = pygame.transform.scale2x(explosion_frame)
     explosion.append(explosion_frame)

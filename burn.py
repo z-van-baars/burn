@@ -61,9 +61,6 @@ class LanderShadow(object):
         self.image = self.image.convert_alpha()
         pg.draw.ellipse(self.image, (115, 115, 115, 50), [0, 0, 60, 20])
 
-        # self.image.set_alpha(10)
-        # self.image = self.image.convert_alpha()
-
     def get_xposition(self, screen_height, lander_x, lander_y):
         self.x = lander_x - (screen_height - 130 - lander_y) * 0.5
 
@@ -106,11 +103,9 @@ def mouseup_handler(state, event):
 def keydown_handler(state, event):
     if event.key == pg.K_z:
         if state.lander.fuel > 0:
-            print("Thrusting!")
             state.lander.thrusting = True
         else:
             state.lander.thrusting = False
-            print("Out of fuel!!")
 
     elif event.key == pg.K_SPACE:
         if state.lander.crashed or state.lander.landed:
@@ -122,7 +117,6 @@ def keydown_handler(state, event):
 
 def keyup_handler(state, event):
     if event.key == pg.K_z:
-        print("Thrust Stopped")
         state.lander.thrusting = False
 
 
@@ -161,15 +155,23 @@ def physics_update(screen_height, lander, gravity, active_props, active_particle
             lander.landed = True
         lander.y_velocity = 0
         lander.x_velocity = 0
+
+
+    # particle physics and position math
     for particle in active_particles:
         if particle.physical == True:
+            # 4 is terminal particle velocity for physical particles
+            # chop the float down to keep the numbers reasonable
             particle.y_velocity = round(min(4, particle.y_velocity + gravity), 2)
+
+        # chop the float down after multiplication to keep the numbers from getting ridiculous
         particle.x_velocity *= 0.995
         particle.x_velocity = round(particle.x_velocity, 2)
 
-        particle.x += particle.x_velocity + lander.x_velocity
+        particle.x += particle.x_velocity
         particle.y += particle.y_velocity
 
+    # move scene items to make it appear as if the lander is travelling
     for prop in active_props:
         prop.x += lander.x_velocity
 

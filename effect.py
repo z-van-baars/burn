@@ -15,7 +15,6 @@ class Effect(object):
         self.frame_duration = frame_duration
         self.frame_count = 0
 
-
     def play(self):
         self.frame_count += 1
         if self.frame_count > self.frame_duration:
@@ -37,4 +36,3 @@ class Effect(object):
 class Explosion(Effect):
     def __init__(self, x, y):
         super().__init__(x, y, art.explosion, False, 2)
-        # animation is a list of image files

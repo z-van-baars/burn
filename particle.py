@@ -24,6 +24,7 @@ class Flame(Particle):
         super().__init__(x, y, 2)
         self.image = random.choice(art.flame_sprites)
 
+
 class SmallFlame(Particle):
     def __init__(self, x, y):
         super().__init__(x, y, 2)
@@ -32,7 +33,7 @@ class SmallFlame(Particle):
 
 class Smoke(Particle):
     def __init__(self, x, y, duration_boost=0):
-        super().__init__(x, y, 120+duration_boost)
+        super().__init__(x, y, 120 + duration_boost)
         self.image = random.choice(art.smoke_sprites)
 
 
@@ -63,5 +64,5 @@ class LunarDust(PhysParticle):
 
 class SmallSmoke(Particle):
     def __init__(self, x, y, duration_boost=0):
-        super().__init__(x, y, 90+duration_boost)
+        super().__init__(x, y, 90 + duration_boost)
         self.image = random.choice(art.small_smoke_sprites)

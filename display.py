@@ -17,17 +17,17 @@ colors = Colors()
 
 
 class Fonts(object):
-    arial = pg.font.Sysfont(
+    arial = pg.font.SysFont(
         'Arial',
         24,
         False,
         False)
-    calibri = pg.font.Sysfont(
+    calibri = pg.font.SysFont(
         'Calibri',
         24,
         False,
         False)
-    banschrift = pg.font.Sysfont(
+    banschrift = pg.font.SysFont(
         'Banschrift Light Semicondensed',
         24,
         False,
@@ -41,51 +41,57 @@ fonts = Fonts()
 
 
 class Banner(object):
-    def __init__(self, screen_dimensions, x, y, message, font=fonts.helvetica, color=colors.white):
-        self.x = x
-        self.y = y
+    def __init__(self, message, font=fonts.arial, color=colors.white):
+        self.x = 0
+        self.y = 0
         self.font = font
         self.message = message
         self.color = color
-        self.image = pygame.Surface([0, 0])
+        self.render_image()
 
-    def render_image(self)
+    def render_image(self):
         self.image = self.font.render(self.message, True, self.color)
 
 
 class Decals(object):
     def __init__(self):
-        altitude_stamp = large_font.render(, True, (255, 255, 255))
-        self.altitude_stamp = Banner(
-            screen_dimensions,
-            4,
-            10,
-            "Altitude: {0}".format(
-                round(state.screen_height - 130 - state.lander.y), 3),
+        self.altitude = Banner(
+            "Altitude: {0}".format(0),
             fonts.banschrift)
-        self.velocity_banner = Banner(
-            screen_dimensions,
-            "Velocity: {0}".format(-state.lander.y_velocity),
-            4,
-            30,
+        self.altitude.x = 4
+        self.altitude.y = 10
+        self.velocity = Banner(
+            "Velocity: {0}".format(0),
             fonts.banschrift)
-        self.fuel_banner = Banner(
-            screen_dimensions,
-            "Fuel: [ {0} / 500 ]".format(state.lander.fuel),
-            4,
-            50,
+        self.velocity.x = 4
+        self.velocity.y = 30
+        self.fuel = Banner(
+            "Fuel: [ {0} / 500 ]".format(0),
             fonts.banschrift)
-
+        self.fuel.x = 4
+        self.fuel.y = 50
         self.active_messages = []
 
     def get_all_decals(self):
         return self.active_messages + [
-            self.altitude_stamp,
-            self.fuel_stamp]
+            self.altitude,
+            self.velocity,
+            self.fuel]
+
+    def render_core_decals(self, screen_height, lander):
+        self.altitude.message = (
+            "Altitude: {0}".format(
+                round(screen_height - 130 - lander.y), 3))
+        self.velocity.message = (
+            "Velocity: {0}".format(-lander.y_velocity))
+        self.fuel.message = (
+            "Fuel: [ {0} / 500 ]".format(lander.fuel))
+        for each in [self.velocity, self.altitude, self.fuel]:
+            each.render_image()
 
 
-def display_update(screen, clock, state):
-    screen.fill((20, 20, 20))
+def display_update(screen, clock, state, decals):
+    screen.fill(colors.background_black)
 
     # Draw the ground / background
     screen.blit(
@@ -119,47 +125,57 @@ def display_update(screen, clock, state):
         screen.blit(particle.image, [particle.x, particle.y])
 
     # Decals and UI
+    decals.render_core_decals(state.screen_height, state.lander)
     if 3.5 >= state.lander.y_velocity > 2:
-        decals.velocity_banner.color = colors.yellow
+        decals.velocity.color = colors.yellow
     elif state.lander.y_velocity > 3.5:
-        decals.velocity_banner.color = colors.red
-    f_color = colors.white
+        decals.velocity.color = colors.red
     if 25 < state.lander.fuel <= 50:
-        decals.fuel_banner.color = colors.yellow
+        decals.fuel.color = colors.yellow
     elif state.lander.fuel <= 25:
-        decals.fuel_banner.color = colors.red
+        decals.fuel.color = colors.red
+
+    for each_decal in decals.get_all_decals():
+        screen.blit(
+            each_decal.image,
+            [each_decal.x,
+             each_decal.y])
 
     fuel_bar = pg.Surface([
         40,
         max(1, int(200 * (state.lander.fuel / 100)))])
     if state.lander.fuel > 0:
-        fuel_bar.fill((225, 10, 10))
+        fuel_bar.fill(colors.red)
 
     screen.blit(
-        fuel_bar
+        fuel_bar,
         [state.screen_width - 50,
          110 + (200 - fuel_bar.get_height())])
     screen.blit(art.fuel_gauge_overlay, [state.screen_width - 55, 100])
 
     # screen.blit(art.throttle_gauge_overlay, [state.screen_width - 55, 300])
     if state.lander.landed is True:
-        landed_message =
-        landed_message = Banner(
-            screen_dimensions,
-            int(screen.get_width() * 0.5 - m_width * 0.5),
-            int(screen.get_height() * 0.3),
-            "You landed with [ {0} / 500 ] fuel remaining!".format(state.lander.fuel),
+        landed_message = (
+            "You landed with [ {0} / 500 ] fuel remaining!".format(
+                state.lander.fuel))
+        landed_banner = Banner(
+            landed_message,
             fonts.banschrift)
-        decals.active_messages.append()
-        landed_stamp = large_font.render(, True, (255, 255, 255))
-        m_width = landed_stamp.get_width()
-        screen.blit(landed_stamp, [int(screen.get_width() * 0.5 - m_width * 0.5), int(screen.get_height() * 0.3)])
-    if state.lander.crashed == True:
-        crashed_stamp = large_font.render(
-            "You have crashed!", True, (245, 10, 10))
-        m_width = crashed_stamp.get_width()
-        screen.blit(crashed_stamp, [int(screen.get_width() * 0.5 - m_width * 0.5), int(screen.get_height() * 0.4)])
+        landed_banner.render_image()
+        m_width = landed_banner.image.get_width()
+        landed_banner.x = int(screen.get_width() * 0.5 - m_width * 0.5)
+        landed_banner.y = int(screen.get_height() * 0.3)
+        decals.active_messages.append(landed_banner)
 
+    if state.lander.crashed is True:
+        crashed_message = ("You have crashed!")
+        crashed_banner = Banner(
+            crashed_message, fonts.banschrift, colors.red)
+        crashed_banner.render_image()
+        m_width = crashed_banner.image.get_width()
+        crashed_banner.x = int(screen.get_width() * 0.5 - m_width * 0.5)
+        crashed_banner.y = int(screen.get_height() * 0.4)
+        decals.active_messages.append(crashed_banner)
     pg.display.flip()
     clock.tick(60)
 

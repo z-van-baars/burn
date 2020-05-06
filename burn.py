@@ -3,7 +3,7 @@ import art
 import pygame as pg
 import particle as prt
 import effect as eft
-from display import display_update
+from display import display_update, Decals
 
 
 class GameState(object):
@@ -14,6 +14,8 @@ class GameState(object):
             [screen_dimensions[0],
              screen_dimensions[1]])
         self.clock = pg.time.Clock()
+
+        self.decals = Decals()
 
         self.gravity = 0.03
 
@@ -289,7 +291,7 @@ while True:
     start = event_handler(state)
     if start is True:
         break
-    display_update(state.screen, state.clock, state)
+    display_update(state.screen, state.clock, state, state.decals)
     state.clock.tick(60)
 
 while True:
@@ -301,5 +303,5 @@ while True:
         state.gravity,
         state.props,
         state.particles)
-    display_update(state.screen, state.clock, state)
+    display_update(state.screen, state.clock, state, state.decals)
     state.clock.tick(60)
